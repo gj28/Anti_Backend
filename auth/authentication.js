@@ -146,8 +146,8 @@ function getUsers(req, res) {
         data: fetchUsersResult.rows });
     });
   }
-  
-function login(req, res) {
+
+  function login(req, res) {
     const { Username, Password } = req.body;
   
     // Check if the user exists in the database
@@ -164,7 +164,7 @@ function login(req, res) {
             status: 401,
             message: 'User does not exist!',
             data: {}
-           });
+          });
         }
   
         if (user.verified === 0) {
@@ -173,7 +173,7 @@ function login(req, res) {
             status: 401,
             message: 'User is not verified. Please verify your account.',
             data: {}
-             });
+          });
         }
   
         // Compare the provided password with the hashed password in the database
@@ -189,32 +189,35 @@ function login(req, res) {
                 status: 401,
                 message: 'Invalid credentials',
                 data: {}
-                 });
+              });
             }
   
-            // Generate a JWT token
-            const token = jwtUtils.generateToken({ Username: user.username });
+            // Generate a JWT token with personalemail included
+            const tokenPayload = {
+              personalemail: user.personalemail // Add personalemail to the token payload
+            };
+            const token = jwtUtils.generateToken(tokenPayload);
   
             // Log the success if no error occurred
             res.json({ 
               status: 200,
               message: 'Login Successful!',
-              data: {token:token,
+              data: {
+                token: token,
                 userid: user.userid,
                 fullname: user.fullname,
                 contactno: user.contactno,
                 usertype: user.usertype,
-                personalemail: user.personalemail,
-              
+                personalemail: user.personalemail
               }  
-               });
+            });
           } catch (error) {
             console.error(error);
             res.status(500).json({ 
               status: 500,
               message: 'Internal server error',
               data: {}
-               });
+            });
           }
         });
       } catch (error) {
@@ -223,7 +226,7 @@ function login(req, res) {
           status: 500,
           message: 'Internal server error',
           data: {}
-           });
+        });
       }
     });
   }
@@ -231,33 +234,42 @@ function login(req, res) {
   function user(req, res) {
     // Check if Authorization header exists
     if (!req.headers.authorization) {
-      return res.status(401).json({ message: 'Authorization header missing' });
+        return res.status(401).json({ message: 'Authorization header missing' });
     }
-  
+
     const token = req.headers.authorization.split(' ')[1];
-  
+    console.log("Received token:", token);
+
     try {
-      const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
-  
-      if (!decodedToken) {
-        return res.status(401).json({ message: 'Invalid token' });
-      }
-  
-      const getUserDetailsQuery = `SELECT * FROM ORP_users WHERE UserName = $1`;
-      pool.query(getUserDetailsQuery, [decodedToken.userName], (fetchUserError, fetchUsernameResult) => {
-        if (fetchUserError) {
-          return res.status(401).json({ message: 'Error while fetching user details' });
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY); // Using process.env.JWT_SECRET_KEY
+        console.log("Decoded token:", decodedToken);
+
+        if (!decodedToken) {
+            console.log("Token verification failed or invalid token.");
+            return res.status(401).json({ message: 'Invalid token' });
         }
-        if (fetchUsernameResult.rows.length === 0) {
-          return res.status(404).json({ message: 'No user Found' });
-        }
-        res.json({ user: fetchUsernameResult.rows[0] });
-      });
+
+        const getUserDetailsQuery = `SELECT * FROM hr.users WHERE personalemail = $1`;
+        console.log("Executing query:", getUserDetailsQuery);
+        db.query(getUserDetailsQuery, [decodedToken.personalemail], (fetchUserError, fetchUsernameResult) => {
+            if (fetchUserError) {
+                console.error("Error fetching user details:", fetchUserError);
+                return res.status(401).json({ message: 'Error while fetching user details' });
+            }
+            if (fetchUsernameResult.rows.length === 0) {
+                console.log("User not found.");
+                return res.status(404).json({ message: 'No user Found' });
+            }
+            console.log("User details found:", fetchUsernameResult.rows[0]);
+            res.json({ user: fetchUsernameResult.rows[0] });
+        });
     } catch (error) {
-      return res.status(401).json({ message: 'Invalid token' });
+        console.error("Token verification error:", error);
+        return res.status(401).json({ message: 'Invalid token' });
     }
-  }
-  
+}
+
+
 
   function editUser(req, res) {
     const userId = req.params.userId;
