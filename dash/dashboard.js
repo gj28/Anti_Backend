@@ -123,9 +123,7 @@ function fetchAllPosition(req, res) {
           return;
         }
         
-        const data = result.rows; 
-        
-        res.json({ data });
+        res.json(result.rows);
       });
     } catch (error) {
       console.error('Error fetching data:', error);
