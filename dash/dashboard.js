@@ -30,6 +30,89 @@ function postOpenPosition(req, res) {
     });
 }
 
+function ApplicationStatus(req, res) {
+  const id = req.params.id;
+  const { status } = req.body;
+
+  if (!status) {
+      return res.status(400).json({ message: 'Status is required in the request body' });
+  }
+
+  const updateStatusQuery = `
+      UPDATE hr.job_applications
+      SET status = $1
+      WHERE id = $2
+  `;
+
+  db.query(updateStatusQuery, [status, id], (updateError, updateResult) => {
+      if (updateError) {
+          console.error('Error updating job application status:', updateError);
+          return res.status(500).json({ message: 'Error updating job application status', error: updateError });
+      } else {
+          console.log('Job application status updated successfully');
+          return res.status(200).json({ message: 'Job application status updated successfully' });
+      }
+  });
+}
+
+
+function editOpenPosition(req, res) {
+  const { id } = req.params;
+  const { location, role, business_area } = req.body;
+
+  if (!id || !location || !role || !business_area) {
+      return res.status(400).json({ message: 'All fields are required: id (as parameter), location, role, business_area' });
+  }
+
+  const updatePositionQuery = `
+      UPDATE hr.open_positions
+      SET location = $1, role = $2, business_area = $3
+      WHERE id = $4
+      RETURNING *
+  `;
+
+  db.query(updatePositionQuery, [location, role, business_area, id], (updatePositionError, updatePositionResult) => {
+      if (updatePositionError) {
+          return res.status(500).json({ message: 'Error updating open position', error: updatePositionError });
+      }
+
+      if (updatePositionResult.rowCount === 0) {
+          return res.status(404).json({ message: 'Open position not found' });
+      }
+
+      const updatedPosition = updatePositionResult.rows[0];
+      res.status(200).json({ message: 'Open position updated successfully', position: updatedPosition });
+  });
+}
+
+function deleteOpenPosition(req, res) {
+  const { id } = req.params;
+
+  if (!id) {
+      return res.status(400).json({ message: 'Job position ID is required' });
+  }
+
+  const deletePositionQuery = `
+      DELETE FROM hr.open_positions
+      WHERE id = $1
+      RETURNING *
+  `;
+
+  db.query(deletePositionQuery, [id], (deletePositionError, deletePositionResult) => {
+      if (deletePositionError) {
+          return res.status(500).json({ message: 'Error deleting open position', error: deletePositionError });
+      }
+
+      if (deletePositionResult.rowCount === 0) {
+          return res.status(404).json({ message: 'Open position not found' });
+      }
+
+      const deletedPosition = deletePositionResult.rows[0];
+      res.status(200).json({ message: 'Open position deleted successfully', position: deletedPosition });
+  });
+}
+
+
 function fetchAllPosition(req, res) {
     try {
       const query = 'SELECT * FROM hr.open_positions';
@@ -80,29 +163,32 @@ function applyJobProfile(req, res) {
     });
 }
 
-function fetchAllapplicant(req, res) {
+
+function fetchAllApplicants(req, res) {
     try {
-      const query = 'SELECT * FROM hr.job_applications';
-      db.query(query, (error, result) => {
-        if (error) {
-          console.error('Error fetching data:', error);
-          res.status(500).json({ message: 'Error fetching data', error: error.message });
-          return;
-        }
-        
-        const data = result.rows; 
-        
-        res.json({ data });
-      });
+        const query = 'SELECT * FROM hr.job_applications';
+        db.query(query, (error, result) => {
+            if (error) {
+                console.error('Error fetching data:', error);
+                res.status(500).json({ message: 'Error fetching data', error: error.message });
+                return;
+            }
+
+            res.json(result.rows);
+        });
     } catch (error) {
-      console.error('Error fetching data:', error);
-      res.status(500).json({ message: 'Internal server error' });
+        console.error('Error fetching data:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-  }
+}
+
 
 module.exports = {
     postOpenPosition,
     fetchAllPosition,
     applyJobProfile,
-    fetchAllapplicant
+    fetchAllApplicants,
+    editOpenPosition,
+    deleteOpenPosition,
+    ApplicationStatus
  }

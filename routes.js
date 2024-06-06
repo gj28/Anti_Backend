@@ -30,9 +30,12 @@ router.post('/reset-password', authentication.resetPassword);
 
 // dash
 router.post('/postOpenPosition', dashboard.postOpenPosition);
+router.put('/editOpenPosition/:id', dashboard.editOpenPosition);
+router.put('/ApplicationStatus/:id', dashboard.ApplicationStatus);
+router.delete('/deleteOpenPosition/:id', dashboard.deleteOpenPosition);
 router.post('/applyJobProfile', dashboard.applyJobProfile);
 router.get('/fetchAllPosition', dashboard.fetchAllPosition);
-router.get('/fetchAllapplicant', dashboard.fetchAllapplicant);
+router.get('/fetchAllapplicant', dashboard.fetchAllApplicants);
 router.put('/updatePassword/:UserId', authentication.updatePassword);
 
 
