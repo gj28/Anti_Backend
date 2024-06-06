@@ -258,7 +258,7 @@ function getUsers(req, res) {
                 return res.status(404).json({ message: 'No user Found' });
             }
             console.log("User details found:", fetchUsernameResult.rows[0]);
-            res.json({ user: fetchUsernameResult.rows[0] });
+            res.json(fetchUsernameResult.rows[0]);
         });
     } catch (error) {
         console.error("Token verification error:", error);
@@ -272,15 +272,13 @@ function getUsers(req, res) {
     const userId = req.params.userId;
     const {
       fullName,
-      contactNo,
       personalEmail,
     } = req.body;
   
-    const editUserQuery = `UPDATE app.users SET fullName = $1, contactNo = $2, personalEmail = $3 WHERE userid = $4`;
+    const editUserQuery = `UPDATE hr.users SET fullName = $1, personalemail = $2 WHERE userid = $3`;
     
     db.query(editUserQuery, [
       fullName,
-      contactNo,
       personalEmail,
       userId
     ], (updateError, updateResult) => {

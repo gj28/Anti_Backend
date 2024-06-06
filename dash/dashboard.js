@@ -50,28 +50,6 @@ function fetchAllPosition(req, res) {
     }
   }
 
-//   function applyJobProfile(req, res) {
-//     const { name, email, contact_no, current_location, role, resume_link } = req.body;
-
-//     if (!name || !email || !contact_no || !current_location || !role || !resume_link) {
-//         return res.status(400).json({ message: 'All fields are required: name, email, contact_no, current_location, role, resume_link' });
-//     }
-
-//     const insertApplicationQuery = `
-//         INSERT INTO hr.job_applications (name, email, contact_no, current_location, role, resume_link)
-//         VALUES ($1, $2, $3, $4, $5, $6)
-//         RETURNING *
-//     `;
-
-//     db.query(insertApplicationQuery, [name, email, contact_no, current_location, role, resume_link], (insertApplicationError, insertApplicationResult) => {
-//         if (insertApplicationError) {
-//             return res.status(500).json({ message: 'Error submitting job application', error: insertApplicationError });
-//         }
-
-//         const newApplication = insertApplicationResult.rows[0];
-//         res.status(201).json({ message: 'Job application submitted successfully', application: newApplication });
-//     });
-// }
 
 function applyJobProfile(req, res) {
     const { name, email, contact_no, current_location, role, resume_link } = req.body;
