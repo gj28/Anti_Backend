@@ -200,16 +200,13 @@ function getUsers(req, res) {
   
             // Log the success if no error occurred
             res.json({ 
-              status: 200,
-              message: 'Login Successful!',
-              data: {
                 token: token,
                 userid: user.userid,
                 fullname: user.fullname,
                 contactno: user.contactno,
                 usertype: user.usertype,
                 personalemail: user.personalemail
-              }  
+               
             });
           } catch (error) {
             console.error(error);
@@ -378,7 +375,7 @@ function updatePassword(req, res) {
   const { Password } = req.body;
 
   // Check if the user exists in the database
-  const userCheckQuery = 'SELECT * FROM app.users WHERE userid = $1';
+  const userCheckQuery = 'SELECT * FROM hr.users WHERE userid = $1';
   db.query(userCheckQuery, [UserId], (error, useridCheckResult) => {
     try {
       if (error) {
@@ -395,7 +392,7 @@ function updatePassword(req, res) {
       const hashedPassword = bcrypt.hashSync(Password, 10);
 
       // Update the user's password in the database
-      const updatePasswordQuery = 'UPDATE app.users SET password = $1 WHERE userid = $2';
+      const updatePasswordQuery = 'UPDATE hr.users SET password = $1 WHERE userid = $2';
       db.query(updatePasswordQuery, [hashedPassword, UserId], (error, result) => {
         if (error) {
           console.error('Error updating password:', error);
