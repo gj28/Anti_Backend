@@ -123,7 +123,7 @@ function sendTokenEmail(email, token, fullName) {
 
 function getUserById(req, res) {
     const userId = req.params.userId;
-    const getUserByUserIdQuery = `SELECT * FROM app.users WHERE userid = $1`;
+    const getUserByUserIdQuery = `SELECT * FROM hr.users WHERE userid = $1`;
   
     db.query(getUserByUserIdQuery, [userId], (fetchUserIdError, fetchUserIdResult) => {
       if (fetchUserIdError) {
