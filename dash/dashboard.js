@@ -164,21 +164,28 @@ function applyJobProfile(req, res) {
 
 function fetchAllApplicants(req, res) {
     try {
-        const query = 'SELECT * FROM hr.job_applications';
+        // Updated SQL query to order by created_at in descending order
+        const query = 'SELECT * FROM hr.job_applications ORDER BY created_at DESC';
+
+        // Execute the query
         db.query(query, (error, result) => {
             if (error) {
+                // Log the error and send a 500 status with error details
                 console.error('Error fetching data:', error);
                 res.status(500).json({ message: 'Error fetching data', error: error.message });
                 return;
             }
 
+            // Send the result as a JSON response
             res.json(result.rows);
         });
     } catch (error) {
+        // Catch and log any unexpected errors
         console.error('Error fetching data:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+
 
 
 module.exports = {
