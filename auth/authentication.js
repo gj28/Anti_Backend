@@ -140,10 +140,7 @@ function getUsers(req, res) {
       if (fetchUsersError) {
         return res.status(401).json({ message: 'Error while fetching users' });
       }
-      res.json({ 
-        status: 200,
-        message: 'Registration successful. Check your email for the verification token.',
-        data: fetchUsersResult.rows });
+      res.json(fetchUsersResult.rows);
     });
   }
 
