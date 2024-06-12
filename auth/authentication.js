@@ -134,7 +134,7 @@ function getUserById(req, res) {
   }
   
 function getUsers(req, res) {
-    const getUserByUserQuery = `SELECT * FROM app.users`;
+    const getUserByUserQuery = `SELECT * FROM hr.users`;
   
     db.query(getUserByUserQuery, (fetchUsersError, fetchUsersResult) => {
       if (fetchUsersError) {
