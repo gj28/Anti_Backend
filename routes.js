@@ -18,6 +18,7 @@ const limitter = require('express-rate-limit');
 
 router.post('/addUser', authentication.registerUser);
 router.get('/fetchUserById/:userId',authentication.getUserById);
+router.get('/fetchdevs',authentication.getdevs);
 router.get('/fetchAllUsers',authentication.getUsers);
 router.post('/login', authentication.login);
 router.get('/user', authentication.user);

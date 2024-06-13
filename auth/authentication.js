@@ -144,6 +144,16 @@ function getUsers(req, res) {
     });
   }
 
+  function getdevs(req, res) {
+    const getUserByUserQuery = `SELECT * FROM hr.devlopers`;
+  
+    db.query(getUserByUserQuery, (fetchUsersError, fetchUsersResult) => {
+      if (fetchUsersError) {
+        return res.status(401).json({ message: 'Error while fetching users' });
+      }
+      res.json(fetchUsersResult.rows);
+    });
+  }
   function login(req, res) {
     const { Username, Password } = req.body;
   
@@ -505,6 +515,7 @@ module.exports = {
   resetPassword,
   updatePassword,
   forgotPassword,
-  sendResetTokenEmail
+  sendResetTokenEmail,
+  getdevs
   
 }
