@@ -161,6 +161,26 @@ function applyJobProfile(req, res) {
     });
 }
 
+function calculate(req, res) {
+    try {
+        // Define the constant object
+        const user = {
+            username: 'test',
+            password: 'test'
+        };
+
+        // Log the user object to the console
+        console.log('Sending user data:', user);
+
+        // Send the constant object as a JSON response
+        console.log(user);
+
+    } catch (error) {
+        // Catch and log any unexpected errors
+        console.error('Error processing request:', error);
+    }
+}
+
 
 function fetchAllApplicants(req, res) {
     try {
@@ -185,8 +205,15 @@ function fetchAllApplicants(req, res) {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+function devdata() {
+    // Fetch data immediately upon start
+    calculate();
+    
+    // Set an interval to fetch data every 10 minutes
+    setInterval(calculate, 600000); // 600000 milliseconds = 10 minutes
+}
 
-
+devdata()
 
 module.exports = {
     postOpenPosition,
@@ -195,5 +222,6 @@ module.exports = {
     fetchAllApplicants,
     editOpenPosition,
     deleteOpenPosition,
-    ApplicationStatus
+    ApplicationStatus,
+    calculate
  }
