@@ -210,7 +210,7 @@ function devdata() {
     calculate();
     
     // Set an interval to fetch data every 10 minutes
-    setInterval(calculate, 600000); // 600000 milliseconds = 10 minutes
+    setInterval(calculate, 100000); // 600000 milliseconds = 10 minutes
 }
 
 devdata()
