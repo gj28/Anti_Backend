@@ -205,15 +205,6 @@ function fetchAllApplicants(req, res) {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
-function devdata() {
-    // Fetch data immediately upon start
-    calculate();
-    
-    // Set an interval to fetch data every 10 minutes
-    setInterval(calculate, 100000); // 600000 milliseconds = 10 minutes
-}
-
-devdata()
 
 module.exports = {
     postOpenPosition,
@@ -223,5 +214,4 @@ module.exports = {
     editOpenPosition,
     deleteOpenPosition,
     ApplicationStatus,
-    calculate
  }
