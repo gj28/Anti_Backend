@@ -504,22 +504,6 @@ function sendResetTokenEmail(personalEmail, resetToken) {
     });
   });
 }
-const fetchAndCacheDevs = () => {
-  const getUserByUserQuery = `SELECT * FROM hr.devlopers`;
-
-  db.query(getUserByUserQuery, (fetchUsersError, fetchUsersResult) => {
-    if (fetchUsersError) {
-      console.error('Error while fetching users:', fetchUsersError);
-      return;
-    }
-    // Assuming you have a cache or a place to store the results
-    // e.g., cacheStore.set('devs', fetchUsersResult.rows);
-    console.log('Fetched devs:', fetchUsersResult.rows);
-  });
-};
-
-// Fetch data every 30 seconds
-setInterval(fetchAndCacheDevs, 30000);
 
 module.exports = { 
   registerUser,
