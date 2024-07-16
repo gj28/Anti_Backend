@@ -6,6 +6,90 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
+const { google } = require('googleapis');
+
+// Google Drive API setup
+const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+
+const getDriveService = () => {
+
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: process.env.CLIENT_EMAIL,
+      private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+    },
+    scopes: SCOPES,
+  });
+
+  return google.drive({ version: 'v3', auth });
+};
+
+const tempDir = path.join(__dirname, '../temp');
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir);
+}
+
+async function applyJobProfile(req, res) {
+  const { name, email, contact_no, current_location, role } = req.body;
+
+  if (!req.files || !req.files.Resume) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  const file = req.files.Resume;
+  const driveService = getDriveService();
+
+  // Save the file to a temporary path
+  const tempFilePath = path.join(tempDir, file.name);
+  await file.mv(tempFilePath);
+
+  try {
+    const fileMetadata = { name: file.name };
+    const media = {
+      mimeType: file.mimetype,
+      body: fs.createReadStream(tempFilePath),
+    };
+
+    const response = await driveService.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink',
+    });
+
+    // Set file permissions to public
+    await driveService.permissions.create({
+      fileId: response.data.id,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+
+    // Delete the temporary file
+    fs.unlinkSync(tempFilePath);
+
+    const resume_link = `https://drive.google.com/file/d/${response.data.id}/view`;
+
+    const insertApplicationQuery = `
+      INSERT INTO hr.job_applications (name, email, contact_no, current_location, role, resume_link)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `;
+
+    db.query(insertApplicationQuery, [name, email, contact_no, current_location, role, resume_link], (insertApplicationError, insertApplicationResult) => {
+      if (insertApplicationError) {
+        return res.status(500).json({ message: 'Error submitting job application', error: insertApplicationError });
+      }
+
+      const newApplication = insertApplicationResult.rows[0];
+      res.status(201).json({ message: 'Job application submitted successfully', application: newApplication });
+    });
+
+  } catch (error) {
+    console.error('Error uploading file to Google Drive:', error);
+    res.status(500).json({ message: 'Error uploading file to Google Drive', error });
+  }
+}
 
 function postOpenPosition(req, res) {
     const { location, role, business_area } = req.body;
@@ -132,35 +216,6 @@ function fetchAllPosition(req, res) {
   }
 
 
-function applyJobProfile(req, res) {
-    const { name, email, contact_no, current_location, role, resume_link } = req.body;
-
-    if (!name || !email || !contact_no || !current_location || !role || !resume_link) {
-        return res.status(400).json({ message: 'All fields are required: name, email, contact_no, current_location, role, resume_link' });
-    }
-
-    const gdriveRegex = /^https:\/\/drive\.google\.com\//;
-
-    if (!gdriveRegex.test(resume_link)) {
-        return res.status(400).json({ message: 'Only Google Drive links are accepted for resume_link' });
-    }
-
-    const insertApplicationQuery = `
-        INSERT INTO hr.job_applications (name, email, contact_no, current_location, role, resume_link)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING *
-    `;
-
-    db.query(insertApplicationQuery, [name, email, contact_no, current_location, role, resume_link], (insertApplicationError, insertApplicationResult) => {
-        if (insertApplicationError) {
-            return res.status(500).json({ message: 'Error submitting job application', error: insertApplicationError });
-        }
-
-        const newApplication = insertApplicationResult.rows[0];
-        res.status(201).json({ message: 'Job application submitted successfully', application: newApplication });
-    });
-}
-
 function calculate(req, res) {
     try {
         // Define the constant object
@@ -205,6 +260,7 @@ function fetchAllApplicants(req, res) {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+  
 
 module.exports = {
     postOpenPosition,
