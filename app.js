@@ -14,7 +14,7 @@ app.use(cors());
 app.use(fileUpload());
 
 // Use the router for handling routes
-app.use(router);
+app.use('/api', router);
 
 // Start the server
 app.listen(port, () => {
