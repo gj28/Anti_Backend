@@ -299,7 +299,7 @@ function getUsers(req, res) {
 
   function deleteUser(req, res) {
     const userId = req.params.userId;
-    const deleteUserQuery = `DELETE FROM app.users WHERE userid = $1`;
+    const deleteUserQuery = `DELETE FROM hr.users WHERE userid = $1`;
   
     db.query(deleteUserQuery, [userId], (deleteError, deleteResult) => {
       if (deleteError) {
