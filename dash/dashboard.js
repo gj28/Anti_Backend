@@ -114,6 +114,29 @@ function postOpenPosition(req, res) {
     });
 }
 
+function addDevice(req, res) {
+  const { device_latitude, device_longitute, device_name, device_uid } = req.body;
+
+  if (!device_latitude || !device_longitute || !device_name || !device_uid) {
+      return res.status(400).json({ message: 'All fields are required: location, role, business_area' });
+  }
+
+  const insertPositionQuery = `
+      INSERT INTO hr.devlopers (location, role, name, id)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+  `;
+
+  db.query(insertPositionQuery, [device_latitude, device_longitute, device_name, device_uid], (insertPositionError, insertPositionResult) => {
+      if (insertPositionError) {
+          return res.status(500).json({ message: 'Error creating open position', error: insertPositionError });
+      }
+
+      const newPosition = insertPositionResult.rows[0];
+      res.status(201).json({ message: 'Open position created successfully', position: newPosition });
+  });
+}
+
 function ApplicationStatus(req, res) {
   const id = req.params.id;
   const { status } = req.body;
@@ -270,4 +293,5 @@ module.exports = {
     editOpenPosition,
     deleteOpenPosition,
     ApplicationStatus,
+    addDevice
  }
