@@ -313,6 +313,22 @@ function getUsers(req, res) {
   }
   
 
+  function deletedev(req, res) {
+    const userId = req.params.userId;
+    const deleteUserQuery = `DELETE FROM hr.devlopers WHERE id = $1`;
+  
+    db.query(deleteUserQuery, [userId], (deleteError, deleteResult) => {
+      if (deleteError) {
+        return res.status(401).json({ message: 'Error While Deleting User' });
+      }
+      if (deleteResult.rowCount === 0) {
+        return res.status(404).json({ message: 'User Not Found' });
+      }
+      return res.status(200).json({ message: 'User Deleted Successfully' });
+    });
+  }
+
+
 function generateUserID() {
   const userIdLength = 10;
   let userId = '';
@@ -517,6 +533,7 @@ module.exports = {
   updatePassword,
   forgotPassword,
   sendResetTokenEmail,
-  getdevs
+  getdevs,
+  deletedev
   
 }
