@@ -115,19 +115,19 @@ function postOpenPosition(req, res) {
 }
 
 function addDevice(req, res) {
-  const { device_latitude, device_longitute, device_name, device_uid } = req.body;
+  const { device_latitude, device_longitute, device_name, device_uid, location } = req.body;
 
-  if (!device_latitude || !device_longitute || !device_name || !device_uid) {
+  if (!device_latitude || !device_longitute || !device_name || !device_uid || !location) {
       return res.status(400).json({ message: 'All fields are required: location, role, business_area' });
   }
 
   const insertPositionQuery = `
-      INSERT INTO hr.devlopers (location, role, name, id)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO hr.devlopers (location, role, name, id, business_area)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
   `;
 
-  db.query(insertPositionQuery, [device_latitude, device_longitute, device_name, device_uid], (insertPositionError, insertPositionResult) => {
+  db.query(insertPositionQuery, [device_latitude, device_longitute, device_name, device_uid, location], (insertPositionError, insertPositionResult) => {
       if (insertPositionError) {
           return res.status(500).json({ message: 'Error creating open position', error: insertPositionError });
       }
