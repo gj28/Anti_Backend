@@ -37,6 +37,7 @@ router.put('/ApplicationStatus/:id', dashboard.ApplicationStatus);
 router.delete('/deleteOpenPosition/:id', dashboard.deleteOpenPosition);
 router.post('/applyJobProfile', dashboard.applyJobProfile);
 router.get('/fetchAllPosition', dashboard.fetchAllPosition);
+router.get('/fetchAllapplicant', dashboard.fetchAllApplicants);
 router.post('/add-Device', dashboard.addDevice);
 router.put('/updatePassword/:UserId', authentication.updatePassword);
 
