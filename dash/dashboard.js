@@ -91,6 +91,81 @@ async function applyJobProfile(req, res) {
   }
 }
 
+async function submitServiceRequest(req, res) {
+  const { email, companyName, phone, contactMethod, description, services } = req.body;
+
+  if (!req.files || !req.files.pdfFile) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  const file = req.files.pdfFile;
+  const driveService = getDriveService();
+
+  // Ensure the temp directory exists
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir);
+  }
+
+  const tempFilePath = path.join(tempDir, file.name);
+
+  try {
+    // Move the file to the temporary directory
+    await file.mv(tempFilePath);
+
+    const fileMetadata = { name: file.name };
+    const media = {
+      mimeType: file.mimetype,
+      body: fs.createReadStream(tempFilePath),
+    };
+
+    const response = await driveService.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink',
+    });
+
+    // Set file permissions to public
+    await driveService.permissions.create({
+      fileId: response.data.id,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+
+    // Delete the temporary file
+    fs.unlinkSync(tempFilePath);
+
+    const pdfLink = `https://drive.google.com/file/d/${response.data.id}/view`;
+
+    const insertQuery = `
+      INSERT INTO hr.service_requests (email, company_name, phone, contact_method, description, services, pdf_link)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `;
+
+    db.query(
+      insertQuery,
+      [email, companyName, phone, contactMethod, description, services, pdfLink],
+      (insertError, result) => {
+        if (insertError) {
+          console.error('Error inserting service request into database:', insertError);
+          return res.status(500).json({ message: 'Error saving service request', error: insertError });
+        }
+
+        res.status(201).json({
+          message: 'Service request submitted successfully',
+          request: result.rows[0],
+        });
+      }
+    );
+  } catch (error) {
+    console.error('Error handling file:', error);
+    res.status(500).json({ message: 'Error processing the file', error });
+  }
+}
+
+
 function postOpenPosition(req, res) {
     const { location, role, business_area } = req.body;
 
@@ -283,6 +358,43 @@ function fetchAllApplicants(req, res) {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+
+function postClientInquiry(req, res) {
+  const { email, companyName, phone, contactMethod, description, services } = req.body;
+  const pdfFile = req.file; // Assumes `multer` or similar middleware is used to handle file uploads.
+
+  // Validate required fields
+  if (!email || !companyName || !phone || !contactMethod || !description || !services || !pdfFile) {
+      return res.status(400).json({ 
+          message: 'All fields are required: email, companyName, phone, contactMethod, description, services, pdfFile' 
+      });
+  }
+
+  const insertInquiryQuery = `
+      INSERT INTO client_inquiries (email, company_name, phone, contact_method, description, services, pdf_file)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+  `;
+
+  const pdfBuffer = pdfFile.buffer; // Assuming the binary data is in `buffer`.
+
+  db.query(
+      insertInquiryQuery, 
+      [email, companyName, phone, contactMethod, description, services, pdfBuffer],
+      (insertError, insertResult) => {
+          if (insertError) {
+              return res.status(500).json({ message: 'Error creating client inquiry', error: insertError });
+          }
+
+          const newInquiry = insertResult.rows[0];
+          res.status(201).json({ 
+              message: 'Client inquiry created successfully', 
+              inquiry: newInquiry 
+          });
+      }
+  );
+}
+
   
 
 module.exports = {
@@ -293,5 +405,7 @@ module.exports = {
     editOpenPosition,
     deleteOpenPosition,
     ApplicationStatus,
-    addDevice
+    addDevice,
+    postClientInquiry,
+    submitServiceRequest
  }

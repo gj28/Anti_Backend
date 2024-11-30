@@ -39,7 +39,9 @@ router.post('/applyJobProfile', dashboard.applyJobProfile);
 router.get('/fetchAllPosition', dashboard.fetchAllPosition);
 router.get('/fetchAllapplicant', dashboard.fetchAllApplicants);
 router.post('/add-Device', dashboard.addDevice);
+router.post('/postc', dashboard.postClientInquiry);
 router.put('/updatePassword/:UserId', authentication.updatePassword);
+router.post('/submitservice', dashboard.submitServiceRequest);
 
 
 module.exports = router;
