@@ -359,6 +359,30 @@ function fetchAllApplicants(req, res) {
     }
 }
 
+function fetchAllServices(req, res) {
+  try {
+      // Updated SQL query to order by created_at in descending order
+      const query = 'SELECT * FROM hr.service_requests ORDER BY created_at DESC';
+
+      // Execute the query
+      db.query(query, (error, result) => {
+          if (error) {
+              // Log the error and send a 500 status with error details
+              console.error('Error fetching data:', error);
+              res.status(500).json({ message: 'Error fetching data', error: error.message });
+              return;
+          }
+
+          // Send the result as a JSON response
+          res.json(result.rows);
+      });
+  } catch (error) {
+      // Catch and log any unexpected errors
+      console.error('Error fetching data:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 function postClientInquiry(req, res) {
   const { email, companyName, phone, contactMethod, description, services } = req.body;
   const pdfFile = req.file; // Assumes `multer` or similar middleware is used to handle file uploads.
@@ -407,5 +431,6 @@ module.exports = {
     ApplicationStatus,
     addDevice,
     postClientInquiry,
-    submitServiceRequest
+    submitServiceRequest,
+    fetchAllServices
  }

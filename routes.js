@@ -38,6 +38,7 @@ router.delete('/deleteOpenPosition/:id', dashboard.deleteOpenPosition);
 router.post('/applyJobProfile', dashboard.applyJobProfile);
 router.get('/fetchAllPosition', dashboard.fetchAllPosition);
 router.get('/fetchAllapplicant', dashboard.fetchAllApplicants);
+router.get('/fetchservices', dashboard.fetchAllServices);
 router.post('/add-Device', dashboard.addDevice);
 router.post('/postc', dashboard.postClientInquiry);
 router.put('/updatePassword/:UserId', authentication.updatePassword);
