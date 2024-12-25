@@ -25,6 +25,7 @@ router.get('/user', authentication.user);
 router.put('/editUser/:userId', authentication.editUser);
 router.delete('/deleteUser/:userId', authentication.deleteUser);
 router.delete('/delete-Device/:userId', authentication.deletedev);
+router.post('/verify', authentication.verifyToken);
 
 //forget pass
 router.post('/forgot', authentication.forgotPassword);

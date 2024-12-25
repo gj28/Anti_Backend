@@ -79,12 +79,12 @@ function sendTokenEmail(email, token, fullName) {
 
 
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp.hostinger.com',
     port: 465,
     secure: true,
     auth: {
-      user: "kpohekar19@gmail.com",
-      pass: "woptjevenzhqmrpp"
+      user: "noreply@antiai.ltd",
+      pass: "Pass@antiai123"
     },
   });
 
@@ -103,7 +103,7 @@ function sendTokenEmail(email, token, fullName) {
     const html = compiledTemplate({ token, fullName});
 
     const mailOptions = {
-      from: 'kpohekar19@gmail.com',
+      from: 'noreply@antiai.ltd',
       to: email,
       subject: 'Registration Token',
       html: html,
@@ -234,6 +234,41 @@ function getUsers(req, res) {
       }
     });
   }
+
+  function verifyToken(req, res) {
+    const { token } = req.body;
+  
+    const tokenCheckQuery = 'SELECT * FROM hr.users WHERE verificationtoken = $1';
+    db.query(tokenCheckQuery, [token], (error, tokenCheckResult) => {
+      if (error) {
+        console.error('Error during token verification:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+  
+      try {
+        if (tokenCheckResult.rows.length === 0) {
+          console.log('Token verification failed');
+          return res.status(400).json({ message: 'Token verification failed' });
+        }
+  
+        // Token matches, update the user's status as verified
+        const updateQuery = 'UPDATE hr.users SET verified = $1 WHERE verificationtoken = $2';
+        db.query(updateQuery, [1, token], (error, updateResult) => {
+          if (error) {
+            console.error('Error updating user verification status:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
+  
+          console.log('Token verification successful');
+          res.json({ message: 'Token verification successful. You can now log in.' });
+        });
+      } catch (error) {
+        console.error('Error during token verification:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    });
+  }
+  
 
   function user(req, res) {
     // Check if Authorization header exists
@@ -485,7 +520,7 @@ function sendResetTokenEmail(personalEmail, resetToken) {
     port: 465,
     secure: true,
     auth: {
-      user: 'kpohekar19@gmail.com',
+      user: 'noreply@antiai.ltd',
       pass: 'woptjevenzhqmrpp',
     },
   });
@@ -505,7 +540,7 @@ function sendResetTokenEmail(personalEmail, resetToken) {
     const html = compiledTemplate({ resetToken });
 
     const mailOptions = {
-      from: 'kpohekar19@gmail.com',
+      from: 'noreply@antiai.ltd',
       to: personalEmail,
       subject: 'Reset Password Link',
       html: html,
@@ -534,6 +569,7 @@ module.exports = {
   forgotPassword,
   sendResetTokenEmail,
   getdevs,
-  deletedev
+  deletedev,
+  verifyToken
   
 }
