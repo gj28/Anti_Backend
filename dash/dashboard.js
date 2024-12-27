@@ -76,13 +76,53 @@ async function applyJobProfile(req, res) {
       RETURNING *
     `;
 
-    db.query(insertApplicationQuery, [name, email, contact_no, current_location, role, resume_link], (insertApplicationError, insertApplicationResult) => {
+    db.query(insertApplicationQuery, [name, email, contact_no, current_location, role, resume_link], async (insertApplicationError, insertApplicationResult) => {
       if (insertApplicationError) {
         return res.status(500).json({ message: 'Error submitting job application', error: insertApplicationError });
       }
 
       const newApplication = insertApplicationResult.rows[0];
-      res.status(201).json({ message: 'Job application submitted successfully', application: newApplication });
+
+      // Send acknowledgment email
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.hostinger.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: "noreply@antiai.ltd",
+          pass: "Pass@antiai123"
+        },
+      });
+
+      const emailTemplatePath = path.join(__dirname,'../mail-body/application.ejs');
+      const emailTemplate = fs.readFileSync(emailTemplatePath, 'utf-8');
+
+      const emailContent = ejs.render(emailTemplate, {
+        name: newApplication.name,
+        role: newApplication.role,
+        resume_link: resume_link,
+      });
+
+      const mailOptions = {
+        from: 'noreply@antiai.ltd',
+        to: newApplication.email,
+        subject: 'Job Application Acknowledgment',
+        html: emailContent,
+      };
+
+      try {
+        await transporter.sendMail(mailOptions);
+        res.status(201).json({
+          message: 'Job application submitted successfully and acknowledgment email sent.',
+          application: newApplication,
+        });
+      } catch (emailError) {
+        console.error('Error sending acknowledgment email:', emailError);
+        res.status(201).json({
+          message: 'Job application submitted successfully, but failed to send acknowledgment email.',
+          application: newApplication,
+        });
+      }
     });
 
   } catch (error) {
@@ -90,6 +130,7 @@ async function applyJobProfile(req, res) {
     res.status(500).json({ message: 'Error uploading file to Google Drive', error });
   }
 }
+
 
 async function submitServiceRequest(req, res) {
   const { email, companyName, phone, contactMethod, description, services } = req.body;

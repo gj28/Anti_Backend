@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Template - Job Application</title>
+  <style>
+    /* General styles */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f1f1f1;
+    }
+
+    /* Container styles */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Card styles */
+    .card {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #4caf50;
+      margin-bottom: 10px;
+      line-height: 80px;
+      font-size: 36px;
+      color: white;
+      margin: 0 auto;
+    }
+
+    .avatar-icon {
+      font-size: 24px;
+    }
+
+    .bold-message {
+      font-weight: bold;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .paragraph1 {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #333333;
+    }
+
+    .paragraph2 {
+      margin-top: 2px;
+      font-size: 16px;
+      color: #666666;
+    }
+
+    .button {
+      background-color: #4caf50;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 5px;
+      display: inline-block;
+      margin: 20px auto;
+      transition: background-color 0.2s ease;
+    }
+
+    .button:hover {
+      background-color: #45a049;
+    }
+
+    .text-paragraph {
+      font-size: 14px;
+      color: #666666;
+      line-height: 1.5;
+    }
+
+    .icons-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .circular-icon {
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin: 6px;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+    }
+
+    .circular-icon:hover {
+      opacity: 0.8;
+    }
+
+    .circular-icon-youtube {
+      background-color: #ff0000;
+    }
+
+    .circular-icon-facebook {
+      background-color: #1877f2;
+    }
+
+    .circular-icon-twitter {
+      background-color: #1da1f2;
+    }
+
+    .circular-icon-linkedin {
+      background-color: #0077b5;
+    }
+
+    .circular-icon-instagram {
+      background-color: #c32aa3;
+    }
+  </style>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="avatar">
+        <i class="fas fa-briefcase avatar-icon"></i>
+      </div>
+      <div class="bold-message">Job Application Received</div>
+      <div>
+        <p class="paragraph1">Hi <%= name %>,</p>
+        <p class="paragraph2">Thank you for applying for the <strong><%= role %></strong> position at ANTi-AI.</p>
+        <p class="paragraph2">We have received your application and resume. Our recruitment team will review it and contact you soon.</p>
+      </div>
+      <a href="<%= resume_link %>" class="button">View Uploaded Resume</a>
+      <p class="text-paragraph">
+        If you have any questions or need further assistance, please reach out to us. Thank you for considering a career with us!
+      </p>
+      <div class="icons-row">
+        <a href="#" class="circular-icon circular-icon-facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="#" class="circular-icon circular-icon-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="#" class="circular-icon circular-icon-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+        <a href="#" class="circular-icon circular-icon-youtube">
+          <i class="fab fa-youtube"></i>
+        </a>
+        <a href="#" class="circular-icon circular-icon-instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
