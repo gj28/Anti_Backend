@@ -44,7 +44,7 @@ function registerUser(req, res) {
            });
       }
       const verificationToken = jwtUtils.generateToken({ personalEmail: personalEmail });
-      db.query(insertUserQuery, [userId, fullName, 'hr', personalEmail, hashedPassword, verificationToken, '0'], (insertUserError, insertUserResult) => {
+      db.query(insertUserQuery, [userId, fullName, 'Standard', personalEmail, hashedPassword, verificationToken, '0'], (insertUserError, insertUserResult) => {
         if (insertUserError) {
           console.error('Error during user insertion:', insertUserError);
           return res.status(500).json({ 
