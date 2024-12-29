@@ -10,11 +10,19 @@ const ejs = require('ejs');
 
 
 function registerUser(req, res) {
-  const {
-    fullName,
-    personalEmail,
-    password
-  } = req.body;
+  const { fullName, personalEmail, role, password } = req.body;
+
+  // Define allowed roles
+  const allowedRoles = ['Admin', 'HR', 'Sales Admin', 'Team', 'Partners'];
+
+  // Validate role
+  if (!allowedRoles.includes(role)) {
+    return res.status(400).json({
+      status: 400,
+      message: 'Invalid role. Allowed roles are: Admin, HR, Sales Admin, Team, Partners.',
+      data: {}
+    });
+  }
 
   const userId = generateUserID();
   const fetchUserName = `SELECT * FROM hr.users WHERE personalemail = $1`;
@@ -22,57 +30,63 @@ function registerUser(req, res) {
 
   db.query(fetchUserName, [personalEmail], (fetchUsernameError, fetchUsernameResult) => {
     if (fetchUsernameError) {
-      return res.status(401).json({ 
-        status: 401,
-        message: 'Error Checking User Email',
+      return res.status(500).json({
+        status: 500,
+        message: 'Error checking user email',
         data: {}
       });
     }
+
     if (fetchUsernameResult.rows.length > 0) {
-      return res.status(401).json({ 
-        status: 401,
-        message: 'User Already Exists',
+      return res.status(400).json({
+        status: 400,
+        message: 'User already exists',
         data: {}
-         });
+      });
     }
+
     bcrypt.hash(password, 10, (error, hashedPassword) => {
       if (error) {
-        return res.status(401).json({ 
-          status: 401,
-          message: 'Error During Hashing Password',
+        return res.status(500).json({
+          status: 500,
+          message: 'Error during password hashing',
           data: {}
-           });
+        });
       }
+
       const verificationToken = jwtUtils.generateToken({ personalEmail: personalEmail });
-      db.query(insertUserQuery, [userId, fullName, 'Standard', personalEmail, hashedPassword, verificationToken, '0'], (insertUserError, insertUserResult) => {
+
+      db.query(insertUserQuery, [userId, fullName, role, personalEmail, hashedPassword, verificationToken, '0'], (insertUserError, insertUserResult) => {
         if (insertUserError) {
           console.error('Error during user insertion:', insertUserError);
-          return res.status(500).json({ 
+          return res.status(500).json({
             status: 500,
             message: 'Internal server error',
             data: {}
-             });
+          });
         }
+
         try {
           sendTokenEmail(personalEmail, verificationToken);
           console.log('User registered successfully');
-          return res.status(200).json({ 
+          return res.status(200).json({
             status: 200,
             message: 'Registration successful. Check your email for the verification token.',
             data: {}
           });
-          } catch (sendTokenError) {
+        } catch (sendTokenError) {
           console.error('Error sending verification token:', sendTokenError);
-          return res.status(500).json({ 
-            status: 200,
+          return res.status(500).json({
+            status: 500,
             message: 'Internal server error',
             data: {}
-           });
+          });
         }
       });
     });
   });
 }
+
 
   
 function sendTokenEmail(email, token, fullName) {
