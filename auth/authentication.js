@@ -10,7 +10,7 @@ const ejs = require('ejs');
 
 
 function registerUser(req, res) {
-  const { fullName, personalEmail, role, password } = req.body;
+  const { fullName, personalEmail, userType, password } = req.body;
 
   // Define allowed roles
   const allowedRoles = ['Admin', 'HR', 'Sales Admin', 'Team', 'Partners'];
@@ -56,7 +56,7 @@ function registerUser(req, res) {
 
       const verificationToken = jwtUtils.generateToken({ personalEmail: personalEmail });
 
-      db.query(insertUserQuery, [userId, fullName, role, personalEmail, hashedPassword, verificationToken, '0'], (insertUserError, insertUserResult) => {
+      db.query(insertUserQuery, [userId, fullName, userType, personalEmail, hashedPassword, verificationToken, '0'], (insertUserError, insertUserResult) => {
         if (insertUserError) {
           console.error('Error during user insertion:', insertUserError);
           return res.status(500).json({
