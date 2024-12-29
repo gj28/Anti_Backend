@@ -16,7 +16,7 @@ function registerUser(req, res) {
   const allowedRoles = ['Admin', 'HR', 'Sales Admin', 'Team', 'Partners'];
 
   // Validate role
-  if (!allowedRoles.includes(role)) {
+  if (!allowedRoles.includes(userType)) {
     return res.status(400).json({
       status: 400,
       message: 'Invalid role. Allowed roles are: Admin, HR, Sales Admin, Team, Partners.',
